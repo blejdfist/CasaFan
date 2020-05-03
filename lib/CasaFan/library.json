@@ -1,0 +1,23 @@
+{
+  "name": "CasaFan",
+  "keywords": "fan",
+  "frameworks": "arduino",
+  "version": "1.0.0",
+  "platforms": "*",
+  "build": {
+    "libCompatMode": "off"
+  },
+  "authors": [
+    {
+      "name": "Jim Persson",
+      "email": "jim@nurd.se",
+      "maintainer": true
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Embedded Template Library",
+      "frameworks": "arduino"
+    }
+  ]
+}
