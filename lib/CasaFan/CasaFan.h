@@ -28,16 +28,16 @@ public:
 
     bool needsToTransmit() const;
 
-    etl::bitset<21> buildPayload() const;
+    etl::bitset<31> buildPayload() const;
     etl::bitset<6> getRawBrightness() const { return light_; }
     etl::bitset<3> getRawSpeed() const { return fan_speed_; }
 
 private:
-    static etl::bitset<4> calculateChecksum(const etl::bitset<21>& payload);
+    static etl::bitset<4> calculateChecksum(const etl::bitset<31>& payload);
 
     bool needs_transmit_{true};
     unsigned int pin_;
-    etl::bitset<4> addr_{0ull};
+    etl::bitset<16> addr_{0ull};
     etl::bitset<6> light_{0ull};
     etl::bitset<3> fan_speed_{0ull};
     FanDirection fan_direction_{FanDirection::Forward};

@@ -78,9 +78,9 @@ bool CasaFan::needsToTransmit() const
     return needs_transmit_;
 }
 
-etl::bitset<21> CasaFan::buildPayload() const
+etl::bitset<31> CasaFan::buildPayload() const
 {
-    etl::bitset<21> payload{0ull};
+    etl::bitset<31> payload{0ull};
 
     // 21 bits
     // AAAA LLLLLL 1 SSS D PP CCCC
@@ -91,6 +91,7 @@ etl::bitset<21> CasaFan::buildPayload() const
     // P = Fan pattern (2 bits)
     // C = Checksum
 
+    /*
     writeBits(payload, 0, addr_);
     writeBits(payload, 4, light_);
     payload[10] = true;
@@ -98,17 +99,28 @@ etl::bitset<21> CasaFan::buildPayload() const
     payload[14] = fan_direction_ == FanDirection::Forward;
     writeBits(payload, 15, etl::bitset<2>(3));  // Unused
     writeBits(payload, 17, calculateChecksum(payload));
+     */
+
+    writeBits(payload, 0, addr_);
+    payload[16] = fan_direction_ == FanDirection::Forward;
+    writeBits(payload, 17, light_);
+    payload[23] = true;
+    writeBits(payload, 24, fan_speed_);
+    writeBits(payload, 27, calculateChecksum(payload));
+
 
     return payload;
 }
 
-etl::bitset<4> CasaFan::calculateChecksum(const etl::bitset<21>& payload) {
+etl::bitset<4> CasaFan::calculateChecksum(const etl::bitset<31>& payload) {
+    /*
     unsigned int crc = 7;
 
     for (size_t bit = 0; bit < 17; ++bit)
     {
         crc += (payload[bit] ? 1 : 0) * (1ul << (3 - (bit + 1) % 4));
     }
-
-    return etl::bitset<4>(crc & static_cast<unsigned int>(0xf));
+     */
+    return etl::bitset<4>(payload[16] == 0 ? 0x6 : 0);
+    //return etl::bitset<4>(crc & static_cast<unsigned int>(0xf));
 }
