@@ -52,7 +52,7 @@ void test_payload_off()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0xA);
+    CasaFan fan(HouseCode(0xA));
     TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(fan.buildHouseCodePayload()).c_str());
 }
 
@@ -61,7 +61,7 @@ void test_payload_fan_direction()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     fan.setDirection(CasaFanState::FanDirection::Forward);
     TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
@@ -75,7 +75,7 @@ void test_payload_fan_speed()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     fan.setSpeed(0);  // Off -> Speed 111
     TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
@@ -89,7 +89,7 @@ void test_fan_speed()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     // Fan speed is reversed
 
@@ -108,7 +108,7 @@ void test_brightness()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     // Light off is a special case
     fan.setBrightness(0.0f);

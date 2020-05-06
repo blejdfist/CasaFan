@@ -21,9 +21,19 @@ namespace
 
 }
 
-CasaFan::CasaFan(unsigned int address, unsigned int pin)
+CasaFan::CasaFan(HouseCode address, unsigned int pin)
 : pin_(pin)
-, address_(address)
+, address_(address.value)
+, protocol_(ProtocolType::HouseCode)
+{
+    pinMode(pin_, OUTPUT);
+    digitalWrite(pin_, LOW);
+}
+
+CasaFan::CasaFan(SelfLearning address, unsigned int pin)
+: pin_(pin)
+, address_(address.value)
+, protocol_(ProtocolType::SelfLearning)
 {
     pinMode(pin_, OUTPUT);
     digitalWrite(pin_, LOW);
