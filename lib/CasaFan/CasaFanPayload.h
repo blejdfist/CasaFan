@@ -1,34 +1,13 @@
 #pragma once
+#include <etl/bitset.h>
+#include "CasaFanState.h"
 
-namespace CasaFanPayload
+class CasaFanPayload
 {
-    static etl::bitset<6> buildBrightness(float brightness)
-    {
-        etl::bitset<6> payload;
-        constexpr unsigned int kMinLightValue = 20;
-        constexpr unsigned int kMaxLightValue = 62;
+public:
+    static etl::bitset<6> buildBrightness(float brightness);
+    static etl::bitset<3> buildFanSpeed(unsigned int speed);
+    static bool buildFanDirection(CasaFanState::FanDirection direction);
 
-        if (brightness == 0.0f) {
-            // All bits on = off
-            payload = 63;
-        } else {
-            payload = lround((kMaxLightValue - kMinLightValue) * brightness + kMinLightValue);
-        }
-
-        return payload;
-    }
-
-    static etl::bitset<3> buildFanSpeed(unsigned int speed)
-    {
-        if (speed > 7) {
-            speed = 7;
-        }
-
-        return etl::bitset<3>(7-speed);
-    }
-
-    static bool buildFanDirection(CasaFanState::FanDirection direction)
-    {
-        return direction == CasaFanState::FanDirection::Forward;
-    }
-}
+    static etl::bitset<21> buildHouseCodePayload(unsigned int address, const CasaFanState& state);
+};

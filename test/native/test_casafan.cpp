@@ -8,7 +8,6 @@
 #include <etl/cstring.h>
 #include <array>
 
-
 using fakeit::When;
 
 template<const size_t N>
@@ -49,39 +48,28 @@ void test_line_encoder()
 
 void test_payload_off()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
-
-    CasaFan fan(HouseCode(0xA));
-    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(fan.buildHouseCodePayload()).c_str());
+    CasaFanState state;
+    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(CasaFanPayload::buildHouseCodePayload(0xA, state)).c_str());
 }
 
 void test_payload_fan_direction()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
+    CasaFanState state;
+    state.fan_direction = CasaFanState::FanDirection::Forward;
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 
-    CasaFan fan(HouseCode(0x0));
-
-    fan.setDirection(CasaFanState::FanDirection::Forward);
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
-
-    fan.setDirection(CasaFanState::FanDirection::Reverse);
-    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(fan.buildHouseCodePayload()).c_str());
+    state.fan_direction = CasaFanState::FanDirection::Reverse;
+    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 }
 
 void test_payload_fan_speed()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
+    CasaFanState state;
+    state.fan_speed = 0;
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 
-    CasaFan fan(HouseCode(0x0));
-
-    fan.setSpeed(0);  // Off -> Speed 111
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
-
-    fan.setSpeed(7);  // Full speed -> Speed 000
-    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(fan.buildHouseCodePayload()).c_str());
+    state.fan_speed = 7;
+    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 }
 
 void test_fan_speed()

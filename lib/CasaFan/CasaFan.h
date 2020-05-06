@@ -41,7 +41,6 @@ public:
 
     bool needsToTransmit() const;
 
-    etl::bitset<21> buildHouseCodePayload() const;
     const CasaFanState& getRawState() const { return state_; }
 
 private:
