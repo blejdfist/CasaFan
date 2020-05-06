@@ -13,7 +13,7 @@ public:
     static etl::bitset<BITS*3+1> encode(etl::bitset<BITS> input_bits)
     {
         etl::bitset<BITS*3+1> result;
-        for (int bit = 0; bit < BITS; ++bit) {
+        for (unsigned int bit = 0; bit < BITS; ++bit) {
             result[bit*3] = true;
             result[bit*3+1] = false;
             result[bit*3+2] = input_bits.test(bit);

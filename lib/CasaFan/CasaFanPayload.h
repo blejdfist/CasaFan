@@ -2,7 +2,7 @@
 
 namespace CasaFanPayload
 {
-    static auto buildBrightness(float brightness)
+    static etl::bitset<6> buildBrightness(float brightness)
     {
         etl::bitset<6> payload;
         constexpr unsigned int kMinLightValue = 20;
@@ -18,7 +18,7 @@ namespace CasaFanPayload
         return payload;
     }
 
-    static auto buildFanSpeed(unsigned int speed)
+    static etl::bitset<3> buildFanSpeed(unsigned int speed)
     {
         if (speed > 7) {
             speed = 7;

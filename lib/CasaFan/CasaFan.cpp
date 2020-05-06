@@ -18,7 +18,6 @@ namespace
             output[position+bit] = source[M-bit-1];
         }
     }
-
 }
 
 CasaFan::CasaFan(HouseCode address, unsigned int pin)
