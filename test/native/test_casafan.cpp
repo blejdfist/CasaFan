@@ -1,6 +1,7 @@
 #include <ArduinoFake.h>
 #include <CasaFan.h>
 #include <CasaFanLineEncoding.h>
+#include <CasaFanPayload.h>
 
 #include <unity.h>
 
@@ -111,16 +112,16 @@ void test_brightness()
 
     // Light off is a special case
     fan.setBrightness(0.0f);
-    TEST_ASSERT_EQUAL(63, fan.getRawState().brightness.value<unsigned int>());
+    TEST_ASSERT_EQUAL(63, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(0.1f);
-    TEST_ASSERT_EQUAL(24, fan.getRawState().brightness.value<unsigned int>());
+    TEST_ASSERT_EQUAL(24, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(0.5f);
-    TEST_ASSERT_EQUAL(41, fan.getRawState().brightness.value<unsigned int>());
+    TEST_ASSERT_EQUAL(41, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(1.0f);
-    TEST_ASSERT_EQUAL(62, fan.getRawState().brightness.value<unsigned int>());
+    TEST_ASSERT_EQUAL(62, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 }
 
 int main() {

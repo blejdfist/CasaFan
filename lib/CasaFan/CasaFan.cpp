@@ -6,6 +6,7 @@
 
 #include "CasaFan.h"
 #include "CasaFanLineEncoding.h"
+#include "CasaFanPayload.h"
 
 namespace
 {
@@ -17,6 +18,7 @@ namespace
             output[position+bit] = source[M-bit-1];
         }
     }
+
 }
 
 CasaFan::CasaFan(unsigned int addr4bit, unsigned int pin)
@@ -29,12 +31,7 @@ CasaFan::CasaFan(unsigned int addr4bit, unsigned int pin)
 
 void CasaFan::setBrightness(float brightness)
 {
-    if (brightness == 0.0f) {
-        // All bits on = off
-        state_.brightness = 63;
-    } else {
-        state_.brightness = round((kMaxLightValue - kMinLightValue) * brightness + kMinLightValue);
-    }
+    state_.brightness = brightness;
     needs_transmit_ = true;
 }
 
@@ -80,6 +77,7 @@ etl::bitset<21> CasaFan::buildPayload() const
 {
     etl::bitset<21> payload{0ull};
 
+
     // 21 bits
     // AAAA LLLLLL 1 SSS D PP CCCC
     // A = Address (4 bits)
@@ -90,7 +88,7 @@ etl::bitset<21> CasaFan::buildPayload() const
     // C = Checksum
 
     writeBits(payload, 0, addr_);
-    writeBits(payload, 4, state_.brightness);
+    writeBits(payload, 4, CasaFanPayload::buildBrightness(state_.brightness));
     payload[10] = true;
     writeBits(payload, 11, state_.fan_speed);
     payload[14] = state_.fan_direction == CasaFanState::FanDirection::Forward;

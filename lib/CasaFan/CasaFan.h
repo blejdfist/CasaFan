@@ -37,8 +37,6 @@ private:
     CasaFanState state_;
 
     static constexpr unsigned int kPeriodUsec = 400;
-    static constexpr unsigned int kMinLightValue = 20;
-    static constexpr unsigned int kMaxLightValue = 62;
 };
 
 
