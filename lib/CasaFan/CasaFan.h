@@ -29,6 +29,8 @@ public:
     bool needsToTransmit() const;
 
     etl::bitset<21> buildPayload() const;
+    etl::bitset<6> getRawBrightness() const { return light_; }
+    etl::bitset<3> getRawSpeed() const { return fan_speed_; }
 
 private:
     static etl::bitset<4> calculateChecksum(const etl::bitset<21>& payload);

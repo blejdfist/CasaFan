@@ -83,11 +83,53 @@ void test_payload_fan_speed()
     TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(fan.buildPayload()).c_str());
 }
 
+void test_fan_speed()
+{
+    When(Method(ArduinoFake(), pinMode)).Return();
+    When(Method(ArduinoFake(), digitalWrite)).Return();
+
+    CasaFan fan(0x0);
+
+    // Fan speed is reversed
+
+    fan.setSpeed(0);
+    TEST_ASSERT_EQUAL(7, fan.getRawSpeed().value<unsigned int>());
+
+    fan.setSpeed(1);
+    TEST_ASSERT_EQUAL(6, fan.getRawSpeed().value<unsigned int>());
+
+    fan.setSpeed(7);
+    TEST_ASSERT_EQUAL(0, fan.getRawSpeed().value<unsigned int>());
+}
+
+void test_brightness()
+{
+    When(Method(ArduinoFake(), pinMode)).Return();
+    When(Method(ArduinoFake(), digitalWrite)).Return();
+
+    CasaFan fan(0x0);
+
+    // Light off is a special case
+    fan.setBrightness(0.0f);
+    TEST_ASSERT_EQUAL(63, fan.getRawBrightness().value<unsigned int>());
+
+    fan.setBrightness(0.1f);
+    TEST_ASSERT_EQUAL(24, fan.getRawBrightness().value<unsigned int>());
+
+    fan.setBrightness(0.5f);
+    TEST_ASSERT_EQUAL(41, fan.getRawBrightness().value<unsigned int>());
+
+    fan.setBrightness(1.0f);
+    TEST_ASSERT_EQUAL(62, fan.getRawBrightness().value<unsigned int>());
+}
+
 int main() {
     ArduinoFakeReset();
 
     UNITY_BEGIN();
 
+    RUN_TEST(test_fan_speed);
+    RUN_TEST(test_brightness);
     RUN_TEST(test_line_encoder);
     RUN_TEST(test_payload_off);
     RUN_TEST(test_payload_fan_direction);
