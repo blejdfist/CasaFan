@@ -26,4 +26,9 @@ namespace CasaFanPayload
 
         return etl::bitset<3>(7-speed);
     }
+
+    static bool buildFanDirection(CasaFanState::FanDirection direction)
+    {
+        return direction == CasaFanState::FanDirection::Forward;
+    }
 }

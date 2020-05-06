@@ -87,7 +87,7 @@ etl::bitset<21> CasaFan::buildPayload() const
     writeBits(payload, 4, CasaFanPayload::buildBrightness(state_.brightness));
     payload[10] = true;
     writeBits(payload, 11, CasaFanPayload::buildFanSpeed(state_.fan_speed));
-    payload[14] = state_.fan_direction == CasaFanState::FanDirection::Forward;
+    payload[14] = CasaFanPayload::buildFanDirection(state_.fan_direction);
     writeBits(payload, 15, etl::bitset<2>(3));  // Unused
     writeBits(payload, 17, calculateChecksum(payload));
 
