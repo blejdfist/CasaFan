@@ -1,14 +1,10 @@
 #ifndef FAN_TRANSMITTER_CASAFAN_H
 #define FAN_TRANSMITTER_CASAFAN_H
 
-#include <etl/bitset.h>
+#include "CasaFanState.h"
 
 class CasaFan {
 public:
-    enum class FanDirection {
-        Forward,
-        Reverse
-    };
 
     /**
      * Constructor
@@ -23,24 +19,22 @@ public:
      */
     void setBrightness(float brightness);
     void setSpeed(unsigned int speed);
-    void setDirection(FanDirection direction);
+    void setDirection(CasaFanState::FanDirection direction);
     void transmit();
 
     bool needsToTransmit() const;
 
-    etl::bitset<31> buildPayload() const;
-    etl::bitset<6> getRawBrightness() const { return light_; }
-    etl::bitset<3> getRawSpeed() const { return fan_speed_; }
+    etl::bitset<21> buildPayload() const;
+    const CasaFanState& getRawState() const { return state_; }
 
 private:
-    static etl::bitset<4> calculateChecksum(const etl::bitset<31>& payload);
+    static etl::bitset<4> calculateChecksum(const etl::bitset<21>& payload);
 
     bool needs_transmit_{true};
     unsigned int pin_;
-    etl::bitset<16> addr_{0ull};
-    etl::bitset<6> light_{0ull};
-    etl::bitset<3> fan_speed_{0ull};
-    FanDirection fan_direction_{FanDirection::Forward};
+    etl::bitset<4> addr_{0ull};
+
+    CasaFanState state_;
 
     static constexpr unsigned int kPeriodUsec = 400;
     static constexpr unsigned int kMinLightValue = 20;

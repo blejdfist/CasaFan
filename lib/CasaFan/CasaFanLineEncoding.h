@@ -12,8 +12,6 @@ public:
     template<const size_t BITS>
     static etl::bitset<BITS*3+1> encode(etl::bitset<BITS> input_bits)
     {
-        //static_assert(BITS*3+1 <= 64, "No");
-
         etl::bitset<BITS*3+1> result;
         for (int bit = 0; bit < BITS; ++bit) {
             result[bit*3] = true;

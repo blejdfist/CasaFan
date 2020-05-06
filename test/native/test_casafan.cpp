@@ -62,10 +62,10 @@ void test_payload_fan_direction()
 
     CasaFan fan(0x0);
 
-    fan.setDirection(CasaFan::FanDirection::Forward);
+    fan.setDirection(CasaFanState::FanDirection::Forward);
     TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildPayload()).c_str());
 
-    fan.setDirection(CasaFan::FanDirection::Reverse);
+    fan.setDirection(CasaFanState::FanDirection::Reverse);
     TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(fan.buildPayload()).c_str());
 }
 
@@ -93,13 +93,13 @@ void test_fan_speed()
     // Fan speed is reversed
 
     fan.setSpeed(0);
-    TEST_ASSERT_EQUAL(7, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(7, fan.getRawState().fan_speed.value<unsigned int>());
 
     fan.setSpeed(1);
-    TEST_ASSERT_EQUAL(6, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(6, fan.getRawState().fan_speed.value<unsigned int>());
 
     fan.setSpeed(7);
-    TEST_ASSERT_EQUAL(0, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(0, fan.getRawState().fan_speed.value<unsigned int>());
 }
 
 void test_brightness()
@@ -111,16 +111,16 @@ void test_brightness()
 
     // Light off is a special case
     fan.setBrightness(0.0f);
-    TEST_ASSERT_EQUAL(63, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(63, fan.getRawState().brightness.value<unsigned int>());
 
     fan.setBrightness(0.1f);
-    TEST_ASSERT_EQUAL(24, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(24, fan.getRawState().brightness.value<unsigned int>());
 
     fan.setBrightness(0.5f);
-    TEST_ASSERT_EQUAL(41, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(41, fan.getRawState().brightness.value<unsigned int>());
 
     fan.setBrightness(1.0f);
-    TEST_ASSERT_EQUAL(62, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(62, fan.getRawState().brightness.value<unsigned int>());
 }
 
 int main() {
