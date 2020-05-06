@@ -8,10 +8,10 @@ public:
 
     /**
      * Constructor
-     * @param addr4bit Address of fan 0-15
+     * @param address Address of fan 0-15
      * @param pin Pin to use for 433MHz transmitter
      */
-    explicit CasaFan(unsigned int addr4bit = 0x0, unsigned int pin = 11);
+    explicit CasaFan(unsigned int address = 0x0, unsigned int pin = 11);
 
     /**
      * Set the brightness of the light
@@ -24,7 +24,7 @@ public:
 
     bool needsToTransmit() const;
 
-    etl::bitset<21> buildPayload() const;
+    etl::bitset<21> buildHouseCodePayload() const;
     const CasaFanState& getRawState() const { return state_; }
 
 private:
@@ -32,7 +32,7 @@ private:
 
     bool needs_transmit_{true};
     unsigned int pin_;
-    etl::bitset<4> addr_{0ull};
+    unsigned int address_;
 
     CasaFanState state_;
 

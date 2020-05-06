@@ -21,9 +21,9 @@ namespace
 
 }
 
-CasaFan::CasaFan(unsigned int addr4bit, unsigned int pin)
+CasaFan::CasaFan(unsigned int address, unsigned int pin)
 : pin_(pin)
-, addr_(addr4bit)
+, address_(address)
 {
     pinMode(pin_, OUTPUT);
     digitalWrite(pin_, LOW);
@@ -49,7 +49,7 @@ void CasaFan::setDirection(CasaFanState::FanDirection direction)
 
 void CasaFan::transmit()
 {
-    const auto payload = buildPayload();
+    const auto payload = buildHouseCodePayload();
     auto line_coded = CasaFanLineEncoding::encode(payload);
 
     for (auto repeat = 0; repeat < 8; ++repeat) {
@@ -69,10 +69,9 @@ bool CasaFan::needsToTransmit() const
     return needs_transmit_;
 }
 
-etl::bitset<21> CasaFan::buildPayload() const
+etl::bitset<21> CasaFan::buildHouseCodePayload() const
 {
     etl::bitset<21> payload{0ull};
-
 
     // 21 bits
     // AAAA LLLLLL 1 SSS D PP CCCC
@@ -83,7 +82,7 @@ etl::bitset<21> CasaFan::buildPayload() const
     // P = Fan pattern (2 bits)
     // C = Checksum
 
-    writeBits(payload, 0, addr_);
+    writeBits(payload, 0, etl::bitset<4>(address_));
     writeBits(payload, 4, CasaFanPayload::buildBrightness(state_.brightness));
     payload[10] = true;
     writeBits(payload, 11, CasaFanPayload::buildFanSpeed(state_.fan_speed));

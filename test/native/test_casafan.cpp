@@ -53,7 +53,7 @@ void test_payload_off()
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
     CasaFan fan(0xA);
-    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(fan.buildPayload()).c_str());
+    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(fan.buildHouseCodePayload()).c_str());
 }
 
 void test_payload_fan_direction()
@@ -64,10 +64,10 @@ void test_payload_fan_direction()
     CasaFan fan(0x0);
 
     fan.setDirection(CasaFanState::FanDirection::Forward);
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildPayload()).c_str());
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
 
     fan.setDirection(CasaFanState::FanDirection::Reverse);
-    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(fan.buildPayload()).c_str());
+    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(fan.buildHouseCodePayload()).c_str());
 }
 
 void test_payload_fan_speed()
@@ -78,10 +78,10 @@ void test_payload_fan_speed()
     CasaFan fan(0x0);
 
     fan.setSpeed(0);  // Off -> Speed 111
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildPayload()).c_str());
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildHouseCodePayload()).c_str());
 
     fan.setSpeed(7);  // Full speed -> Speed 000
-    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(fan.buildPayload()).c_str());
+    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(fan.buildHouseCodePayload()).c_str());
 }
 
 void test_fan_speed()
