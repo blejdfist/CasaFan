@@ -37,11 +37,7 @@ void CasaFan::setBrightness(float brightness)
 
 void CasaFan::setSpeed(unsigned int speed)
 {
-    if (speed > 7) {
-        speed = 7;
-    }
-
-    state_.fan_speed = 7-speed;
+    state_.fan_speed = speed;
     needs_transmit_ = true;
 }
 
@@ -90,7 +86,7 @@ etl::bitset<21> CasaFan::buildPayload() const
     writeBits(payload, 0, addr_);
     writeBits(payload, 4, CasaFanPayload::buildBrightness(state_.brightness));
     payload[10] = true;
-    writeBits(payload, 11, state_.fan_speed);
+    writeBits(payload, 11, CasaFanPayload::buildFanSpeed(state_.fan_speed));
     payload[14] = state_.fan_direction == CasaFanState::FanDirection::Forward;
     writeBits(payload, 15, etl::bitset<2>(3));  // Unused
     writeBits(payload, 17, calculateChecksum(payload));

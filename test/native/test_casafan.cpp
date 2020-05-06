@@ -94,13 +94,13 @@ void test_fan_speed()
     // Fan speed is reversed
 
     fan.setSpeed(0);
-    TEST_ASSERT_EQUAL(7, fan.getRawState().fan_speed.value<unsigned int>());
+    TEST_ASSERT_EQUAL(7, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 
     fan.setSpeed(1);
-    TEST_ASSERT_EQUAL(6, fan.getRawState().fan_speed.value<unsigned int>());
+    TEST_ASSERT_EQUAL(6, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 
     fan.setSpeed(7);
-    TEST_ASSERT_EQUAL(0, fan.getRawState().fan_speed.value<unsigned int>());
+    TEST_ASSERT_EQUAL(0, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 }
 
 void test_brightness()

@@ -17,4 +17,13 @@ namespace CasaFanPayload
 
         return payload;
     }
+
+    static auto buildFanSpeed(unsigned int speed)
+    {
+        if (speed > 7) {
+            speed = 7;
+        }
+
+        return etl::bitset<3>(7-speed);
+    }
 }

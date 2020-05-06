@@ -9,6 +9,7 @@ struct CasaFanState
     };
 
     float brightness{0};
-    etl::bitset<3> fan_speed{"111"};
+    unsigned int fan_speed{0};
     FanDirection fan_direction{FanDirection::Forward};
 };
+
