@@ -50,19 +50,39 @@ void CasaFan::setDirection(CasaFanState::FanDirection direction)
 
 void CasaFan::transmit()
 {
-    const auto payload = CasaFanPayload::buildHouseCodePayload(address_, state_);
-    auto line_coded = CasaFanLineEncoding::encode(payload);
+    switch (protocol_) {
+        case ProtocolType::HouseCode:
+        {
+            const auto payload = CasaFanPayload::buildHouseCodePayload(address_, state_);
+            auto line_coded = CasaFanLineEncoding::encode(payload);
+            performTransmission(line_coded);
+            break;
+        }
 
-    for (auto repeat = 0; repeat < 8; ++repeat) {
-        for (size_t bit = 0; bit < line_coded.size(); ++bit) {
-            digitalWrite(pin_, line_coded.test(bit) ? HIGH : LOW);
+        case ProtocolType::SelfLearning:
+        {
+            const auto payload = CasaFanPayload::buildSelfLearningPayload(address_, state_);
+            auto line_coded = CasaFanLineEncoding::encode(payload);
+            performTransmission(line_coded);
+            break;
+        }
+    }
+
+    needs_transmit_ = false;
+}
+
+void CasaFan::performTransmission(const etl::ibitset& bits) const
+{
+    for (auto repeat = 0; repeat < 8; ++repeat)
+    {
+        for (size_t bit = 0; bit < bits.size(); ++bit)
+        {
+            digitalWrite(pin_, bits.test(bit) ? HIGH : LOW);
             delayMicroseconds(380);
         }
         digitalWrite(pin_, LOW);
         delay(10);
     }
-
-    needs_transmit_ = false;
 }
 
 bool CasaFan::needsToTransmit() const

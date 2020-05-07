@@ -10,4 +10,5 @@ public:
     static bool buildFanDirection(CasaFanState::FanDirection direction);
 
     static etl::bitset<21> buildHouseCodePayload(unsigned int address, const CasaFanState& state);
+    static etl::bitset<31> buildSelfLearningPayload(unsigned int address, const CasaFanState& state);
 };

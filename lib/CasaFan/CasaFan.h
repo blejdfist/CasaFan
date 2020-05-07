@@ -44,7 +44,7 @@ public:
     const CasaFanState& getRawState() const { return state_; }
 
 private:
-    static etl::bitset<4> calculateChecksum(const etl::bitset<21>& payload);
+    void performTransmission(const etl::ibitset& bits) const;
 
     bool needs_transmit_{true};
     unsigned int pin_;

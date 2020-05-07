@@ -31,7 +31,7 @@ etl::bitset<N-1> from_string(const char(&bits)[N]) {
 
 void test_line_encoder()
 {
-    std::array test_sets{
+    std::array test_sets_housecode {
         etl::make_pair(from_string("000011111011111110110"),
                        from_string("1001001001001011011011011011001011011011011011011011001011011001")),
         etl::make_pair(from_string("000111111111111110000"),
@@ -39,8 +39,16 @@ void test_line_encoder()
         etl::make_pair(from_string("001011111111111111001"),
                        from_string("1001001011001011011011011011011011011011011011011011011001001011"))
     };
+    for (const auto& [input, expected] : test_sets_housecode) {
+        auto result = CasaFanLineEncoding::encode(input);
+        TEST_ASSERT_EQUAL_STRING(to_string(expected).c_str(), to_string(result).c_str());
+    }
 
-    for (const auto& [input, expected] : test_sets) {
+    std::array test_sets_selflearning {
+        etl::make_pair(from_string("1100100100010110011111110100110"),
+                       from_string("1011011001001011001001011001001001011001011011001001011011011011011011011001011001001011011001"))
+    };
+    for (const auto& [input, expected] : test_sets_selflearning) {
         auto result = CasaFanLineEncoding::encode(input);
         TEST_ASSERT_EQUAL_STRING(to_string(expected).c_str(), to_string(result).c_str());
     }
@@ -50,6 +58,7 @@ void test_payload_off()
 {
     CasaFanState state;
     TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(CasaFanPayload::buildHouseCodePayload(0xA, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110111111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 }
 
 void test_payload_fan_direction()
@@ -57,9 +66,11 @@ void test_payload_fan_direction()
     CasaFanState state;
     state.fan_direction = CasaFanState::FanDirection::Forward;
     TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110111111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 
     state.fan_direction = CasaFanState::FanDirection::Reverse;
     TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110011111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 }
 
 void test_payload_fan_speed()

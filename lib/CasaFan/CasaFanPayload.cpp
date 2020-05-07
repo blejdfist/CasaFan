@@ -76,3 +76,25 @@ etl::bitset<21> CasaFanPayload::buildHouseCodePayload(unsigned int address, cons
 
     return payload;
 }
+
+etl::bitset<31> CasaFanPayload::buildSelfLearningPayload(unsigned int address, const CasaFanState &state)
+{
+    etl::bitset<31> payload{0ull};
+
+    // 31 bits
+    // AAAAAAAAAAAAAAAA D LLLLLL 1 SSS CCCC
+    // D = Fan direction (1 bit)
+    // A = Address (16 bits)
+    // L = Light level (6 bits)
+    // S = Fan speed (3 bits)
+    // C = Checksum (Always 0110 ?)
+
+    writeBits(payload, 0, etl::bitset<16>(address));
+    payload[16] = CasaFanPayload::buildFanDirection(state.fan_direction);
+    writeBits(payload, 17, CasaFanPayload::buildBrightness(state.brightness));
+    payload[23] = true;
+    writeBits(payload, 24, CasaFanPayload::buildFanSpeed(state.fan_speed));
+    writeBits(payload, 27, etl::bitset<4>(6u));
+
+    return payload;
+}
