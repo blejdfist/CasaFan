@@ -1,4 +1,4 @@
-#include "CasaFanPayload.h"
+#include "PayloadEncoder.h"
 
 namespace {
     template<const size_t N, const size_t M>
@@ -6,10 +6,15 @@ namespace {
     {
         for (size_t bit = 0; bit < M; ++bit)
         {
-            output[position+bit] = source[M-bit-1];
+            output[position + bit] = source[M - bit - 1];
         }
     }
 
+    /**
+     * Calculate checksum for house code fans
+     * @param payload Payload to calculate checksum for
+     * @return Checksum (4 bits)
+     */
     etl::bitset<4> calculateChecksum(const etl::bitset<21>& payload)
     {
         unsigned int crc = 7;
@@ -21,9 +26,9 @@ namespace {
 
         return etl::bitset<4>(crc & static_cast<unsigned int>(0xf));
     }
-}
+} // namespace
 
-etl::bitset<6> CasaFanPayload::buildBrightness(float brightness)
+etl::bitset<6> PayloadEncoderBase::buildBrightness(float brightness)
 {
     etl::bitset<6> payload;
     constexpr unsigned int kMinLightValue = 20;
@@ -39,7 +44,7 @@ etl::bitset<6> CasaFanPayload::buildBrightness(float brightness)
     return payload;
 }
 
-etl::bitset<3> CasaFanPayload::buildFanSpeed(unsigned int speed)
+etl::bitset<3> PayloadEncoderBase::buildFanSpeed(unsigned int speed)
 {
     if (speed > 7) {
         speed = 7;
@@ -48,12 +53,12 @@ etl::bitset<3> CasaFanPayload::buildFanSpeed(unsigned int speed)
     return etl::bitset<3>(7-speed);
 }
 
-bool CasaFanPayload::buildFanDirection(CasaFanState::FanDirection direction)
+bool PayloadEncoderBase::buildFanDirection(CasaFanState::FanDirection direction)
 {
     return direction == CasaFanState::FanDirection::Forward;
 }
 
-etl::bitset<21> CasaFanPayload::buildHouseCodePayload(unsigned int address, const CasaFanState &state)
+etl::bitset<21> HouseCodePayloadEncoder::build(unsigned int address, const CasaFanState &state)
 {
     etl::bitset<21> payload{0ull};
 
@@ -67,17 +72,17 @@ etl::bitset<21> CasaFanPayload::buildHouseCodePayload(unsigned int address, cons
     // C = Checksum
 
     writeBits(payload, 0, etl::bitset<4>(address));
-    writeBits(payload, 4, CasaFanPayload::buildBrightness(state.brightness));
+    writeBits(payload, 4, buildBrightness(state.brightness));
     payload[10] = true;
-    writeBits(payload, 11, CasaFanPayload::buildFanSpeed(state.fan_speed));
-    payload[14] = CasaFanPayload::buildFanDirection(state.fan_direction);
+    writeBits(payload, 11, buildFanSpeed(state.fan_speed));
+    payload[14] = buildFanDirection(state.fan_direction);
     writeBits(payload, 15, etl::bitset<2>(3));  // Unused
     writeBits(payload, 17, calculateChecksum(payload));
 
     return payload;
 }
 
-etl::bitset<31> CasaFanPayload::buildSelfLearningPayload(unsigned int address, const CasaFanState &state)
+etl::bitset<31> SelfLearningPayloadEncoder::build(unsigned int address, const CasaFanState &state)
 {
     etl::bitset<31> payload{0ull};
 
@@ -90,10 +95,10 @@ etl::bitset<31> CasaFanPayload::buildSelfLearningPayload(unsigned int address, c
     // C = Checksum (Always 0110 ?)
 
     writeBits(payload, 0, etl::bitset<16>(address));
-    payload[16] = CasaFanPayload::buildFanDirection(state.fan_direction);
-    writeBits(payload, 17, CasaFanPayload::buildBrightness(state.brightness));
+    payload[16] = buildFanDirection(state.fan_direction);
+    writeBits(payload, 17, buildBrightness(state.brightness));
     payload[23] = true;
-    writeBits(payload, 24, CasaFanPayload::buildFanSpeed(state.fan_speed));
+    writeBits(payload, 24, buildFanSpeed(state.fan_speed));
     writeBits(payload, 27, etl::bitset<4>(6u));
 
     return payload;

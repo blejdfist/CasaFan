@@ -1,59 +1,101 @@
-#ifndef FAN_TRANSMITTER_CASAFAN_H
-#define FAN_TRANSMITTER_CASAFAN_H
+#pragma once
+#include <Arduino.h>
 
 #include "CasaFanState.h"
+#include "encoders/CasaFanLineEncoding.h"
+#include "encoders/PayloadEncoder.h"
 
-struct HouseCode {
-    explicit HouseCode(unsigned int addr) : value(addr) {}
-    unsigned int value;
+struct HouseCodeFan
+{
+    using payload_builder = HouseCodePayloadEncoder;
 };
 
-struct SelfLearning {
-    explicit SelfLearning(unsigned int addr) : value(addr) {}
-    unsigned int value;
+struct SelfLearningFan
+{
+    using payload_builder = SelfLearningPayloadEncoder;
 };
 
-class CasaFan {
+class CasaFanDriverBase {
 public:
-    enum class ProtocolType {
-        HouseCode,
-        SelfLearning
-    };
-
     /**
      * Constructor
      * @param address Address of fan 0-15 or 0x0 - 0xffff for self learning fan
      * @param pin Pin to use for 433MHz transmitter
      */
-    explicit CasaFan(HouseCode address, unsigned int pin = 11);
-    explicit CasaFan(SelfLearning address, unsigned int pin = 11);
-
-
+    explicit CasaFanDriverBase(unsigned int address, unsigned int pin)
+        : pin_(pin)
+        , address_(address)
+    {
+        pinMode(pin_, OUTPUT);
+        digitalWrite(pin_, LOW);
+    }
 
     /**
      * Set the brightness of the light
      * @param brightness
      */
-    void setBrightness(float brightness);
-    void setSpeed(unsigned int speed);
-    void setDirection(CasaFanState::FanDirection direction);
-    void transmit();
+    void setBrightness(float brightness)
+    {
+        state_.brightness = brightness;
+        needs_transmit_ = true;
+    }
 
-    bool needsToTransmit() const;
+    void setSpeed(unsigned int speed)
+    {
+        state_.fan_speed = speed;
+        needs_transmit_ = true;
+    }
 
-    const CasaFanState& getRawState() const { return state_; }
+    void setDirection(CasaFanState::FanDirection direction)
+    {
+        state_.fan_direction = direction;
+        needs_transmit_ = true;
+    }
 
-private:
-    void performTransmission(const etl::ibitset& bits) const;
+    bool needsToTransmit() const { return needs_transmit_; }
+
+    virtual void transmit() = 0;
+
+protected:
+    ~CasaFanDriverBase() = default;
+
+    void performTransmission(const etl::ibitset &bits)
+    {
+        for (auto repeat = 0; repeat < 8; ++repeat)
+        {
+            for (size_t bit = 0; bit < bits.size(); ++bit)
+            {
+                digitalWrite(pin_, bits.test(bit) ? HIGH : LOW);
+                delayMicroseconds(380);
+            }
+            digitalWrite(pin_, LOW);
+            delay(10);
+        }
+
+        needs_transmit_ = false;
+    }
 
     bool needs_transmit_{true};
     unsigned int pin_;
     unsigned int address_;
-    ProtocolType protocol_;
     CasaFanState state_;
-
-    static constexpr unsigned int kPeriodUsec = 400;
 };
 
+template<typename FanTraits>
+class CasaFanDriver : public CasaFanDriverBase {
+public:
+    explicit CasaFanDriver(unsigned int address, unsigned int pin)
+        : CasaFanDriverBase(address, pin)
+    {
+    }
 
-#endif //FAN_TRANSMITTER_CASAFAN_H
+    void transmit() override
+    {
+        const auto payload = FanTraits::payload_builder::build(address_, state_);
+        auto line_coded = CasaFanLineEncoding::encode(payload);
+        performTransmission(line_coded);
+    }
+};
+
+using CasaFanHouseCode = CasaFanDriver<HouseCodeFan>;
+using CasaFanSelfLearning = CasaFanDriver<SelfLearningFan>;
