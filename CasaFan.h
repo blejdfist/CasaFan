@@ -75,7 +75,7 @@ protected:
         needs_transmit_ = false;
     }
 
-    bool needs_transmit_{true};
+    bool needs_transmit_{false};
     unsigned int pin_;
     unsigned int address_;
     CasaFanState state_;
