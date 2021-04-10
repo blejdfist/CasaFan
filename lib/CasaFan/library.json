@@ -14,11 +14,5 @@
       "email": "jim@nurd.se",
       "maintainer": true
     }
-  ],
-  "dependencies": [
-    {
-      "name": "Embedded Template Library",
-      "frameworks": "arduino"
-    }
   ]
 }
