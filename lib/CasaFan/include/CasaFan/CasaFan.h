@@ -1,9 +1,9 @@
 #pragma once
 #include <Arduino.h>
 
+#include "CasaFanLineEncoding.h"
+#include "PayloadEncoder.h"
 #include "CasaFanState.h"
-#include "encoders/CasaFanLineEncoding.h"
-#include "encoders/PayloadEncoder.h"
 
 struct HouseCodeFan
 {

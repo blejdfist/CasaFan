@@ -1,5 +1,5 @@
 #pragma once
-#include "CasaFanState.h"
+#include <CasaFan/CasaFanState.h>
 #include <etl/bitset.h>
 
 class PayloadEncoderBase {

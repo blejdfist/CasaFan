@@ -1,4 +1,4 @@
-#include "PayloadEncoder.h"
+#include <CasaFan/PayloadEncoder.h>
 
 namespace {
     template<const size_t N, const size_t M>

@@ -5,7 +5,7 @@
   "version": "1.0.2",
   "platforms": "*",
   "build": {
-    "includeDir": ".",
+    "includeDir": "include",
     "libCompatMode": "off"
   },
   "authors": [
