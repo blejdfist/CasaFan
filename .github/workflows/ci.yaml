@@ -7,14 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache pip
+      - name: Set up cache
         uses: actions/cache@v2
         with:
-          path: ~/.cache/pip
-      - name: Cache PlatformIO
-        uses: actions/cache@v2
-        with:
-          path: ~/.platformio
+          path: |
+            ~/.cache/pip
+            ~/.platformio
+          key: ${{ runner.os }}-tests
       - name: Set up Python
         uses: actions/setup-python@v2
       - name: Install PlatformIO
