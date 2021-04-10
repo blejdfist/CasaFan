@@ -1,5 +1,5 @@
 #pragma once
-#include <etl/bitset.h>
+#include <bitset>
 
 class CasaFanLineEncoding {
 public:
@@ -10,9 +10,9 @@ public:
      * @return
      */
     template<const size_t BITS>
-    static etl::bitset<BITS * 3 + 1> encode(etl::bitset<BITS> input_bits)
+    static std::bitset<BITS * 3 + 1> encode(std::bitset<BITS> input_bits)
     {
-        etl::bitset<BITS * 3 + 1> result;
+        std::bitset<BITS * 3 + 1> result;
         for (unsigned int bit = 0; bit < BITS; ++bit)
         {
             result[bit * 3] = true;

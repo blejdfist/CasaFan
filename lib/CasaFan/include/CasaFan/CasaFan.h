@@ -59,14 +59,15 @@ public:
 protected:
     ~CasaFanDriverBase() = default;
 
-    void performTransmission(const etl::ibitset &bits)
+    template<const std::size_t N>
+    void performTransmission(const std::bitset<N>& bits)
     {
         for (auto repeat = 0; repeat < 8; ++repeat)
         {
-            for (size_t bit = 0; bit < bits.size(); ++bit)
+            for (size_t bit = 0; bit < N; ++bit)
             {
                 digitalWrite(pin_, bits.test(bit) ? HIGH : LOW);
-                delayMicroseconds(380);
+                delayMicroseconds(392);
             }
             digitalWrite(pin_, LOW);
             delay(10);

@@ -1,5 +1,4 @@
 #pragma once
-#include <etl/bitset.h>
 
 struct CasaFanState
 {
