@@ -10,4 +10,5 @@ Verified working fans
 ---------------------
 
  - CasaFan Eco Aviatos 132 (Fixed code)
+ - CasaFan Eco Aviatos 162 (Self Learning code)
  

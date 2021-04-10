@@ -1,12 +1,12 @@
 #include <ArduinoFake.h>
 #include <CasaFan.h>
 #include <CasaFanLineEncoding.h>
+#include <CasaFanPayload.h>
 
 #include <unity.h>
 
 #include <etl/cstring.h>
 #include <array>
-
 
 using fakeit::When;
 
@@ -31,7 +31,7 @@ etl::bitset<N-1> from_string(const char(&bits)[N]) {
 
 void test_line_encoder()
 {
-    std::array test_sets{
+    std::array test_sets_housecode {
         etl::make_pair(from_string("000011111011111110110"),
                        from_string("1001001001001011011011011011001011011011011011011011001011011001")),
         etl::make_pair(from_string("000111111111111110000"),
@@ -39,8 +39,16 @@ void test_line_encoder()
         etl::make_pair(from_string("001011111111111111001"),
                        from_string("1001001011001011011011011011011011011011011011011011011001001011"))
     };
+    for (const auto& [input, expected] : test_sets_housecode) {
+        auto result = CasaFanLineEncoding::encode(input);
+        TEST_ASSERT_EQUAL_STRING(to_string(expected).c_str(), to_string(result).c_str());
+    }
 
-    for (const auto& [input, expected] : test_sets) {
+    std::array test_sets_selflearning {
+        etl::make_pair(from_string("1100100100010110011111110100110"),
+                       from_string("1011011001001011001001011001001001011001011011001001011011011011011011011001011001001011011001"))
+    };
+    for (const auto& [input, expected] : test_sets_selflearning) {
         auto result = CasaFanLineEncoding::encode(input);
         TEST_ASSERT_EQUAL_STRING(to_string(expected).c_str(), to_string(result).c_str());
     }
@@ -48,39 +56,31 @@ void test_line_encoder()
 
 void test_payload_off()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
-
-    CasaFan fan(0xA);
-    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(fan.buildPayload()).c_str());
+    CasaFanState state;
+    TEST_ASSERT_EQUAL_STRING("101011111111111111101", to_string(CasaFanPayload::buildHouseCodePayload(0xA, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110111111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 }
 
 void test_payload_fan_direction()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
+    CasaFanState state;
+    state.fan_direction = CasaFanState::FanDirection::Forward;
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110111111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 
-    CasaFan fan(0x0);
-
-    fan.setDirection(CasaFan::FanDirection::Forward);
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildPayload()).c_str());
-
-    fan.setDirection(CasaFan::FanDirection::Reverse);
-    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(fan.buildPayload()).c_str());
+    state.fan_direction = CasaFanState::FanDirection::Reverse;
+    TEST_ASSERT_EQUAL_STRING("000011111111110110111", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
+    TEST_ASSERT_EQUAL_STRING("1100100100010110011111111110110", to_string(CasaFanPayload::buildSelfLearningPayload(0xc916, state)).c_str());
 }
 
 void test_payload_fan_speed()
 {
-    When(Method(ArduinoFake(), pinMode)).Return();
-    When(Method(ArduinoFake(), digitalWrite)).Return();
+    CasaFanState state;
+    state.fan_speed = 0;
+    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 
-    CasaFan fan(0x0);
-
-    fan.setSpeed(0);  // Off -> Speed 111
-    TEST_ASSERT_EQUAL_STRING("000011111111111111000", to_string(fan.buildPayload()).c_str());
-
-    fan.setSpeed(7);  // Full speed -> Speed 000
-    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(fan.buildPayload()).c_str());
+    state.fan_speed = 7;
+    TEST_ASSERT_EQUAL_STRING("000011111110001111010", to_string(CasaFanPayload::buildHouseCodePayload(0, state)).c_str());
 }
 
 void test_fan_speed()
@@ -88,18 +88,18 @@ void test_fan_speed()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     // Fan speed is reversed
 
     fan.setSpeed(0);
-    TEST_ASSERT_EQUAL(7, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(7, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 
     fan.setSpeed(1);
-    TEST_ASSERT_EQUAL(6, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(6, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 
     fan.setSpeed(7);
-    TEST_ASSERT_EQUAL(0, fan.getRawSpeed().value<unsigned int>());
+    TEST_ASSERT_EQUAL(0, CasaFanPayload::buildFanSpeed(fan.getRawState().fan_speed).value<unsigned int>());
 }
 
 void test_brightness()
@@ -107,20 +107,20 @@ void test_brightness()
     When(Method(ArduinoFake(), pinMode)).Return();
     When(Method(ArduinoFake(), digitalWrite)).Return();
 
-    CasaFan fan(0x0);
+    CasaFan fan(HouseCode(0x0));
 
     // Light off is a special case
     fan.setBrightness(0.0f);
-    TEST_ASSERT_EQUAL(63, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(63, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(0.1f);
-    TEST_ASSERT_EQUAL(24, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(24, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(0.5f);
-    TEST_ASSERT_EQUAL(41, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(41, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 
     fan.setBrightness(1.0f);
-    TEST_ASSERT_EQUAL(62, fan.getRawBrightness().value<unsigned int>());
+    TEST_ASSERT_EQUAL(62, CasaFanPayload::buildBrightness(fan.getRawState().brightness).value<unsigned int>());
 }
 
 int main() {
